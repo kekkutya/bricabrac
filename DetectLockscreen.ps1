@@ -11,15 +11,18 @@ Invoke-WebRequest $LockscreenImageURL -outfile "$LockScreenimage"
 #Create MD5 hash from downloaded image
 $blobfilehash = Get-FileHash "$LockScreenImage" | Select-Object -ExpandProperty Hash
 
-#Checks last modified timestamp of the current files and looks for correct registry values
+#Create MD5 hash from local image
 $localfilehash = Get-FileHash "C:\temp\lockscreen.jpg" | Select-Object -ExpandProperty Hash
 
+#Check Registry settings
 $reg1 = Get-ItemPropertyValue "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\PersonalizationCSP" -Name "LockScreenImagePath"
 $reg2 = Get-ItemPropertyValue "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\PersonalizationCSP" -Name "LockScreenImageStatus"
 $reg3 = Get-ItemPropertyValue "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\PersonalizationCSP" -Name "LockScreenImageUrl"
 
-#cleanup temp dir
+#Cleanup Temp Image Directory
 Remove-Item -Path $ImageDestinationFolder -Recurse -Force
+
+#Compare downloaded image with local image
 
 If (($localfilehash -eq $blobfilehash) -and ($reg2 -eq $true) -and ($reg1 -and $reg3 -eq "C:\temp\lockscreen.jpg"))
 {
